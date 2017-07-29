@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="popular_movies_url">http://api.themoviedb.org/3/movie/popular?api_key</string>
+    <string name="base_image_url">http://image.tmdb.org/t/p/</string>
 </resources>

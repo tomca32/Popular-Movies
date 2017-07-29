@@ -2,3 +2,4 @@
 .idea
 captures
 secrets.xml
+.gradle
