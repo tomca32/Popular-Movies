@@ -86,6 +86,8 @@ public class MovieGridActivity extends AppCompatActivity {
             }
         }
 
+        this.setTitle(item.getTitle());
+
         return true;
     }
 

@@ -11,7 +11,6 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import java.net.URL;
 
 class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewHolder> {
 
@@ -24,7 +23,7 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
         this.context = context;
     }
 
-    public void changeMovieSet(JSONArray movies) {
+    void changeMovieSet(JSONArray movies) {
         this.movies = movies;
         notifyDataSetChanged();
     }
