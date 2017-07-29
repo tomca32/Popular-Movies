@@ -24,6 +24,11 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
         this.context = context;
     }
 
+    public void changeMovieSet(JSONArray movies) {
+        this.movies = movies;
+        notifyDataSetChanged();
+    }
+
     @Override
     public PosterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -60,7 +65,7 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
 
         private String getPosterUrlFor(int index) {
             String baseImageUrl = context.getString(R.string.base_image_url);
-            String posterPath = null;
+            String posterPath;
             try {
                 posterPath = movies.getJSONObject(index).getString("poster_path");
             } catch (JSONException e) {
