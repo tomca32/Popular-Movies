@@ -26,12 +26,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static io.tomislav.movies.popularmovies.MovieDetailActivity.DATE_EXTRA;
-import static io.tomislav.movies.popularmovies.MovieDetailActivity.DURATION_EXTRA;
-import static io.tomislav.movies.popularmovies.MovieDetailActivity.PLOT_EXTRA;
-import static io.tomislav.movies.popularmovies.MovieDetailActivity.POSTER_EXTRA;
-import static io.tomislav.movies.popularmovies.MovieDetailActivity.RATING_EXTRA;
-import static io.tomislav.movies.popularmovies.MovieDetailActivity.TITLE_EXTRA;
+import static io.tomislav.movies.popularmovies.MovieDetailActivity.ID_EXTRA;
 import static io.tomislav.movies.popularmovies.UrlService.getPopularMoviesUrl;
 import static io.tomislav.movies.popularmovies.UrlService.getTopRatedMoviesUrl;
 
@@ -112,11 +107,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     public void onItemClick(JSONObject movieClicked) {
         Intent intent = new Intent(this, MovieDetailActivity.class);
         try {
-            intent.putExtra(TITLE_EXTRA, movieClicked.getString("original_title"));
-            intent.putExtra(POSTER_EXTRA, movieClicked.getString("poster_path"));
-            intent.putExtra(PLOT_EXTRA, movieClicked.getString("overview"));
-            intent.putExtra(RATING_EXTRA, movieClicked.getString("vote_average"));
-            intent.putExtra(DATE_EXTRA, movieClicked.getString("release_date"));
+            intent.putExtra(ID_EXTRA, movieClicked.getInt("id"));
         } catch (JSONException e) {
             e.printStackTrace();
         }

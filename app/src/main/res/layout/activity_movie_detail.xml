@@ -38,14 +38,36 @@
             android:layout_weight="5"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:orientation="vertical"
             android:paddingLeft="10sp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_movie_year"
+                android:paddingBottom="10sp"
+                android:textSize="26sp"
+                android:textColor="@color/colorBlack" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_running_time"
+                android:textSize="24sp"
+                android:paddingBottom="10sp"
+                android:textColor="@color/colorBlack" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_rating"
                 android:textSize="20sp"
                 android:textColor="@color/colorBlack" />
         </LinearLayout>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_plot"
+        android:textSize="16sp"
+        android:padding="20sp" />
 
 </LinearLayout>
