@@ -13,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static io.tomislav.movies.popularmovies.UrlService.getPosterUrl;
+
 class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewHolder> {
 
     private JSONArray movies;
@@ -68,7 +70,6 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
         }
 
         private String getPosterUrlFor(int index) {
-            String baseImageUrl = context.getString(R.string.base_image_url);
             String posterPath;
             try {
                 posterPath = movies.getJSONObject(index).getString("poster_path");
@@ -77,7 +78,7 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
                 return null;
             }
 
-            return baseImageUrl + "w185" + posterPath;
+            return getPosterUrl(context, posterPath).toString();
         }
 
         @Override
