@@ -28,7 +28,7 @@ import okhttp3.Response;
 import static io.tomislav.movies.popularmovies.UrlService.getPopularMoviesUrl;
 import static io.tomislav.movies.popularmovies.UrlService.getTopRatedMoviesUrl;
 
-public class MovieGridActivity extends AppCompatActivity {
+public class MovieGridActivity extends AppCompatActivity implements MovieGridAdapter.ItemClickListener {
 
     OkHttpClient client = new OkHttpClient();
 
@@ -56,7 +56,7 @@ public class MovieGridActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         if (adapter == null) {
-            adapter = new MovieGridAdapter(movieList, this);
+            adapter = new MovieGridAdapter(movieList, this, this);
             recyclerView.swapAdapter(adapter, true);
         } else {
             adapter.changeMovieSet(movieList);
@@ -99,6 +99,15 @@ public class MovieGridActivity extends AppCompatActivity {
     private void topSortSelected() {
         GetMoviesTask task = new GetMoviesTask();
         task.execute(getTopRatedMoviesUrl(this));
+    }
+
+    @Override
+    public void onItemClick(JSONObject movieClicked) {
+        try {
+            Logger.getAnonymousLogger().log(Level.INFO, movieClicked.getString("original_title"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private class GetMoviesTask extends AsyncTask<URL, Void, JSONObject> {

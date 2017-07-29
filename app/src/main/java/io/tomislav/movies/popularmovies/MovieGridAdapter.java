@@ -11,16 +11,20 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewHolder> {
 
     private JSONArray movies;
     private Context context;
 
-    MovieGridAdapter(JSONArray movies, Context context) {
+    private ItemClickListener listener;
+
+    MovieGridAdapter(JSONArray movies, Context context, ItemClickListener listener) {
         super();
         this.movies = movies;
         this.context = context;
+        this.listener = listener;
     }
 
     void changeMovieSet(JSONArray movies) {
@@ -47,7 +51,7 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
         return movies.length();
     }
 
-    class PosterViewHolder extends RecyclerView.ViewHolder {
+    class PosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView posterImageView;
 
@@ -55,6 +59,7 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
             super(itemView);
 
             posterImageView = (ImageView) itemView.findViewById(R.id.iv_movie_poster_grid_item);
+            itemView.setOnClickListener(this);
         }
 
         void bind(int index) {
@@ -74,5 +79,18 @@ class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.PosterViewH
 
             return baseImageUrl + "w185" + posterPath;
         }
+
+        @Override
+        public void onClick(View v) {
+            try {
+                listener.onItemClick(movies.getJSONObject(getAdapterPosition()));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    interface ItemClickListener {
+        void onItemClick(JSONObject movieClicked);
     }
 }
