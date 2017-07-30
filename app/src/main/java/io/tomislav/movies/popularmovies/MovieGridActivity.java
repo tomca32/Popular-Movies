@@ -26,6 +26,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static io.tomislav.movies.popularmovies.Connectivity.displayOfflineWarning;
+import static io.tomislav.movies.popularmovies.Connectivity.isOnline;
 import static io.tomislav.movies.popularmovies.MovieDetailActivity.ID_EXTRA;
 import static io.tomislav.movies.popularmovies.UrlService.getPopularMoviesUrl;
 import static io.tomislav.movies.popularmovies.UrlService.getTopRatedMoviesUrl;
@@ -94,11 +96,19 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     }
 
     private void popularSortSelected() {
+        if (!isOnline(this)) {
+            displayOfflineWarning(this);
+            return;
+        }
         GetMoviesTask task = new GetMoviesTask();
         task.execute(getPopularMoviesUrl(this));
     }
 
     private void topSortSelected() {
+        if (!isOnline(this)) {
+            displayOfflineWarning(this);
+            return;
+        }
         GetMoviesTask task = new GetMoviesTask();
         task.execute(getTopRatedMoviesUrl(this));
     }

@@ -19,6 +19,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static io.tomislav.movies.popularmovies.Connectivity.displayOfflineWarning;
+import static io.tomislav.movies.popularmovies.Connectivity.isOnline;
 import static io.tomislav.movies.popularmovies.UrlService.getMovieDetailsUrl;
 
 public class MovieDetailActivity extends AppCompatActivity {
@@ -43,6 +45,10 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         movieId = getIntent().getIntExtra(ID_EXTRA, -1);
 
+        if (!isOnline(this)) {
+            displayOfflineWarning(this);
+            return;
+        }
         GetMovieDetailsTask task = new GetMovieDetailsTask();
         task.execute(getMovieDetailsUrl(this, movieId));
     }
