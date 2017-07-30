@@ -1,9 +1,8 @@
 package io.tomislav.movies.popularmovies;
 
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,7 +19,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static io.tomislav.movies.popularmovies.Connectivity.displayOfflineWarning;
-import static io.tomislav.movies.popularmovies.Connectivity.isOnline;
+import static io.tomislav.movies.popularmovies.Connectivity.isOffline;
 import static io.tomislav.movies.popularmovies.UrlService.getMovieDetailsUrl;
 
 public class MovieDetailActivity extends AppCompatActivity {
@@ -28,8 +27,6 @@ public class MovieDetailActivity extends AppCompatActivity {
     OkHttpClient client = new OkHttpClient();
 
     public static final String ID_EXTRA = "ID_EXTRA";
-
-    private int movieId;
 
     TextView tvMovieTitle;
     TextView tvMovieDate;
@@ -43,9 +40,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-        movieId = getIntent().getIntExtra(ID_EXTRA, -1);
+        int movieId = getIntent().getIntExtra(ID_EXTRA, -1);
 
-        if (!isOnline(this)) {
+        if (isOffline(this)) {
             displayOfflineWarning(this);
             return;
         }
@@ -98,10 +95,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         tvMovieDate.setText(movie.getString("release_date").split("-")[0]);
 
         tvRunningTime = (TextView) findViewById(R.id.tv_running_time);
-        tvRunningTime.setText(movie.getString("runtime") + " min");
+        tvRunningTime.setText(String.format(getString(R.string.runtime), movie.getString("runtime")));
 
         tvRating = (TextView) findViewById(R.id.tv_rating);
-        tvRating.setText(movie.getDouble("vote_average") + "/10");
+        tvRating.setText(String.format(getString(R.string.rating), movie.getDouble("vote_average")));
 
         tvPlot = (TextView) findViewById(R.id.tv_plot);
         tvPlot.setText(movie.getString("overview"));

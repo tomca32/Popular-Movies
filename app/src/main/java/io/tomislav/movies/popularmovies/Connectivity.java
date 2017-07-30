@@ -7,11 +7,11 @@ import android.widget.Toast;
 
 class Connectivity {
 
-    static boolean isOnline(Context context) {
+    static boolean isOffline(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
+        return netInfo == null || !netInfo.isConnectedOrConnecting();
     }
 
     static void displayOfflineWarning(Context context) {

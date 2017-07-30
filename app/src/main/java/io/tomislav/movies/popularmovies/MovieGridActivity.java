@@ -2,22 +2,18 @@ package io.tomislav.movies.popularmovies;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +23,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static io.tomislav.movies.popularmovies.Connectivity.displayOfflineWarning;
-import static io.tomislav.movies.popularmovies.Connectivity.isOnline;
+import static io.tomislav.movies.popularmovies.Connectivity.isOffline;
 import static io.tomislav.movies.popularmovies.MovieDetailActivity.ID_EXTRA;
 import static io.tomislav.movies.popularmovies.UrlService.getPopularMoviesUrl;
 import static io.tomislav.movies.popularmovies.UrlService.getTopRatedMoviesUrl;
@@ -96,7 +92,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     }
 
     private void popularSortSelected() {
-        if (!isOnline(this)) {
+        if (isOffline(this)) {
             displayOfflineWarning(this);
             return;
         }
@@ -105,7 +101,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     }
 
     private void topSortSelected() {
-        if (!isOnline(this)) {
+        if (isOffline(this)) {
             displayOfflineWarning(this);
             return;
         }

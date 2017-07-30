@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,19 +26,26 @@
         android:paddingLeft="20sp"
         android:paddingRight="20sp">
         <ImageView
+            android:contentDescription="@string/movie_poster"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:id="@+id/iv_detail_poster"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:paddingRight="10sp"/>
+            android:paddingRight="10sp"
+            android:paddingLeft="10sp"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
         <LinearLayout
             android:layout_weight="5"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:orientation="vertical"
-            android:paddingLeft="10sp">
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
