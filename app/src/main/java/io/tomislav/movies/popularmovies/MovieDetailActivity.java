@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
@@ -45,6 +46,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
 
     MovieTrailersAdapter trailersAdapter;
     RecyclerView recyclerView;
+    DividerItemDecoration divider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,12 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         recyclerView = (RecyclerView) findViewById(R.id.rv_trailers_list);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
+
+        divider = new DividerItemDecoration(
+                recyclerView.getContext(),
+                manager.getOrientation()
+        );
+        recyclerView.addItemDecoration(divider);
 
         int movieId = getIntent().getIntExtra(ID_EXTRA, -1);
 

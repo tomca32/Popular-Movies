@@ -10,7 +10,7 @@
     <string name="offline_warning">Device is offline. Unable to retrieve movie data.</string>
     <string name="movie_poster">Movie Poster</string>
     <string name="runtime">%s min</string>
-    <string name="rating">%f/10</string>
+    <string name="rating">%.1f/10</string>
     <string name="trailers_label">Trailers:</string>
     <string name="youtube_url">http://www.youtube.com/watch?v=</string>
     <string name="youtube_app">vnd.youtube:</string>
