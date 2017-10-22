@@ -7,6 +7,7 @@
     tools:context="io.tomislav.movies.popularmovies.MovieDetailActivity">
     
     <TextView
+        tools:text="Some Super Movie"
         android:id="@+id/tv_movie_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,6 +48,7 @@
             android:paddingStart="10sp"
             android:paddingEnd="10sp">
             <TextView
+                tools:text="2017"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_movie_year"
@@ -54,6 +56,7 @@
                 android:textSize="26sp"
                 android:textColor="@color/colorBlack" />
             <TextView
+                tools:text="180 min"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_running_time"
@@ -61,6 +64,7 @@
                 android:paddingBottom="10sp"
                 android:textColor="@color/colorBlack" />
             <TextView
+                tools:text="9.5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_rating"
@@ -75,5 +79,17 @@
         android:id="@+id/tv_plot"
         android:textSize="16sp"
         android:padding="20sp" />
+
+    <TextView
+        android:text="@string/trailers_label"
+        android:padding="20sp"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rv_trailers_list" />
 
 </LinearLayout>
