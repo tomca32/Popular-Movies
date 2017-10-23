@@ -38,21 +38,32 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
 
     HashMap<String, JSONObject> resultCache;
 
+    final String URL_PREFIX = "BUNDLE_URL_PREFIX";
+    final String CURRENTLY_SELECTED_KEY = "CURRENTLY_SELECTED_KEY";
+    final String POPULAR = "POPULAR";
+    final String TOP = "TOP";
+
+    String currentlySelected;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_grid);
         resultCache = new HashMap<>();
+        currentlySelected = POPULAR;
 
         if (savedInstanceState != null) {
-            populateResultCache(savedInstanceState);
+            restoreState(savedInstanceState);
         }
 
         recyclerView = (RecyclerView) findViewById(R.id.rv_movies_grid);
         GridLayoutManager manager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(manager);
 
-        popularSortSelected();
+        if (currentlySelected.equals(POPULAR)) {
+            popularSortSelected();
+        } else if (currentlySelected.equals(TOP)) {
+            topSortSelected();
+        }
     }
 
     @Override
@@ -62,6 +73,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
         for (String url : resultCache.keySet()) {
             outState.putString(url, resultCache.get(url).toString());
         }
+        outState.putString(CURRENTLY_SELECTED_KEY, currentlySelected);
     }
 
     void updateMovieGrid(JSONObject movies) {
@@ -102,13 +114,12 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
                 topSortSelected();
             }
         }
-
-        this.setTitle(item.getTitle());
-
         return true;
     }
 
     private void popularSortSelected() {
+        currentlySelected = POPULAR;
+        this.setTitle(R.string.popular_movies);
         URL url = getPopularMoviesUrl(this);
 
         if (showCachedGrid(url.toString())) {
@@ -124,6 +135,8 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     }
 
     private void topSortSelected() {
+        currentlySelected = TOP;
+        this.setTitle(R.string.top_movies);
         URL url = getTopRatedMoviesUrl(this);
 
         if (showCachedGrid(url.toString())) {
@@ -150,22 +163,26 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     }
 
     private boolean showCachedGrid(String url) {
-        if (resultCache.containsKey(url)) {
-            updateMovieGrid(resultCache.get(url));
+        String key = URL_PREFIX + url;
+        if (resultCache.containsKey(key)) {
+            updateMovieGrid(resultCache.get(key));
             return true;
         }
         return false;
     }
 
-    private void populateResultCache(Bundle state) {
+    private void restoreState(Bundle state) {
         for (String key : state.keySet()) {
             String value = state.getString(key);
-            if (value != null) {
+            if (value != null && key.contains(URL_PREFIX)) {
                 try {
                     resultCache.put(key, new JSONObject(value));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+            if (key.equals(CURRENTLY_SELECTED_KEY)) {
+                currentlySelected = value;
             }
         }
     }
@@ -196,7 +213,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
 
         @Override
         protected void onPostExecute(JsonResultWrapper wrapper) {
-            resultCache.put(wrapper.url, wrapper.result);
+            resultCache.put(URL_PREFIX + wrapper.url, wrapper.result);
             updateMovieGrid(wrapper.result);
         }
     }
