@@ -36,6 +36,10 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     OkHttpClient client = new OkHttpClient();
 
     public static final String ID_EXTRA = "ID_EXTRA";
+    private static final String MOVIE_TAG = "MOVIE_TAG";
+    private static final String TRAILERS_TAG = "TRAILERS_TAG";
+    private JSONObject currentMovie;
+    private JSONArray currentTrailers;
 
     TextView tvMovieTitle;
     TextView tvMovieDate;
@@ -69,11 +73,42 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
             displayOfflineWarning(this);
             return;
         }
-        GetMovieDetailsTask detailsTask = new GetMovieDetailsTask();
-        detailsTask.execute(getMovieDetailsUrl(this, movieId));
 
-        GetMovieTrailersTask trailersTask = new GetMovieTrailersTask();
-        trailersTask.execute(getMovieTrailersUrl(this, movieId));
+        try {
+            initializeCurrentMovie(savedInstanceState, movieId);
+        } catch (JSONException e) {
+            (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
+            (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
+        }
+    }
+
+    private void initializeCurrentMovie(Bundle state, int movieId) throws JSONException {
+        if (state != null) {
+            if (state.containsKey(MOVIE_TAG)) {
+                currentMovie = new JSONObject(state.getString(MOVIE_TAG));
+                updateMovieDetails();
+            } else {
+                (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
+            }
+
+            if (state.containsKey(TRAILERS_TAG)) {
+                currentTrailers = new JSONArray(state.getString(TRAILERS_TAG));
+                updateTrailers();
+            } else {
+                (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
+            }
+        } else {
+            (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
+            (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(MOVIE_TAG, currentMovie.toString());
+        outState.putString(TRAILERS_TAG, currentTrailers.toString());
     }
 
     private class GetMovieDetailsTask extends AsyncTask<URL, Void, JSONObject> {
@@ -103,7 +138,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
-                updateMovieDetails(result);
+                currentMovie = result;
+                updateMovieDetails();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -138,7 +174,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         protected void onPostExecute(JSONObject result) {
             try {
                 JSONArray trailerList = result.getJSONArray("results");
-                updateTrailers(trailerList);
+                currentTrailers = trailerList;
+                updateTrailers();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -150,29 +187,29 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         }
     }
 
-    private void updateMovieDetails(JSONObject movie) throws JSONException {
+    private void updateMovieDetails() throws JSONException {
         ivPoster = (ImageView) findViewById(R.id.iv_detail_poster);
-        Picasso.with(this).load(UrlService.getPosterUrl(this, movie.getString("poster_path")).toString()).into(ivPoster);
+        Picasso.with(this).load(UrlService.getPosterUrl(this, currentMovie.getString("poster_path")).toString()).into(ivPoster);
 
         tvMovieTitle = (TextView)findViewById(R.id.tv_movie_title);
-        tvMovieTitle.setText(movie.getString("original_title"));
+        tvMovieTitle.setText(currentMovie.getString("original_title"));
 
         tvMovieDate = (TextView)findViewById(R.id.tv_movie_year);
-        tvMovieDate.setText(movie.getString("release_date").split("-")[0]);
+        tvMovieDate.setText(currentMovie.getString("release_date").split("-")[0]);
 
         tvRunningTime = (TextView) findViewById(R.id.tv_running_time);
-        tvRunningTime.setText(String.format(getString(R.string.runtime), movie.getString("runtime")));
+        tvRunningTime.setText(String.format(getString(R.string.runtime), currentMovie.getString("runtime")));
 
         tvRating = (TextView) findViewById(R.id.tv_rating);
-        tvRating.setText(String.format(getString(R.string.rating), movie.getDouble("vote_average")));
+        tvRating.setText(String.format(getString(R.string.rating), currentMovie.getDouble("vote_average")));
 
         tvPlot = (TextView) findViewById(R.id.tv_plot);
-        tvPlot.setText(movie.getString("overview"));
+        tvPlot.setText(currentMovie.getString("overview"));
     }
 
-    private void updateTrailers(JSONArray trailers) {
+    private void updateTrailers() {
         if (trailersAdapter == null) {
-            trailersAdapter = new MovieTrailersAdapter(trailers, this);
+            trailersAdapter = new MovieTrailersAdapter(currentTrailers, this);
             recyclerView.swapAdapter(trailersAdapter, true);
         }
     }
