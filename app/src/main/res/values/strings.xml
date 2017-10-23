@@ -4,6 +4,7 @@
     <string name="top_rated_movies_url">http://api.themoviedb.org/3/movie/top_rated?api_key</string>
     <string name="movie_details_url">http://api.themoviedb.org/3/movie/%s?api_key</string>
     <string name="movie_trailers_url">http://api.themoviedb.org/3/movie/%s/videos?api_key</string>
+    <string name="movie_reviews_url">http://api.themoviedb.org/3/movie/%s/reviews?api_key</string>
     <string name="base_image_url">http://image.tmdb.org/t/p/</string>
     <string name="popular_movies">Popular Movies</string>
     <string name="top_movies">Top Rated Movies</string>
@@ -12,6 +13,7 @@
     <string name="runtime">%s min</string>
     <string name="rating">%.1f/10</string>
     <string name="trailers_label">Trailers:</string>
+    <string name="reviews_label">Reviews:</string>
     <string name="youtube_url">http://www.youtube.com/watch?v=</string>
     <string name="youtube_app">vnd.youtube:</string>
 </resources>

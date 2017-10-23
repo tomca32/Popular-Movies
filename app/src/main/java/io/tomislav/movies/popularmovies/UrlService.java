@@ -57,6 +57,19 @@ class UrlService {
         return url;
     }
 
+    static URL getMovieReviewsUrl(Context context, int id) {
+        URL url;
+        String str = context.getString(R.string.movie_reviews_url) + "=" + context.getString(R.string.movie_db_api_key);
+        try {
+            url = new URL(String.format(str, id + ""));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return url;
+    }
+
     static URL getPosterUrl(Context context, String posterPath) {
         URL url;
         try {

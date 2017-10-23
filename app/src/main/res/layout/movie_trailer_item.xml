@@ -10,7 +10,6 @@
 
 
     <ImageView
-        android:id="@+id/imageView"
         android:scaleType="fitCenter"
         android:layout_width="40dp"
         android:layout_height="wrap_content"

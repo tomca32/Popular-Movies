@@ -3,7 +3,6 @@ package io.tomislav.movies.popularmovies;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -18,28 +17,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.URL;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import static android.R.attr.id;
 import static io.tomislav.movies.popularmovies.Connectivity.displayOfflineWarning;
 import static io.tomislav.movies.popularmovies.Connectivity.isOffline;
 import static io.tomislav.movies.popularmovies.UrlService.getMovieDetailsUrl;
+import static io.tomislav.movies.popularmovies.UrlService.getMovieReviewsUrl;
 import static io.tomislav.movies.popularmovies.UrlService.getMovieTrailersUrl;
 
 public class MovieDetailActivity extends AppCompatActivity implements MovieTrailersAdapter.TrailerClickListener {
-
-    OkHttpClient client = new OkHttpClient();
-
     public static final String ID_EXTRA = "ID_EXTRA";
     private static final String MOVIE_TAG = "MOVIE_TAG";
     private static final String TRAILERS_TAG = "TRAILERS_TAG";
+    private static final String REVIEWS_TAG = "REVIEWS_TAG";
     private JSONObject currentMovie;
     private JSONArray currentTrailers;
+    private JSONArray currentReviews;
 
     TextView tvMovieTitle;
     TextView tvMovieDate;
@@ -49,7 +41,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     ImageView ivPoster;
 
     MovieTrailersAdapter trailersAdapter;
-    RecyclerView recyclerView;
+    MovieReviewsAdapter reviewsAdapter;
+    RecyclerView trailerRecyclerView;
+    RecyclerView reviewRecyclerView;
     DividerItemDecoration divider;
 
     @Override
@@ -57,15 +51,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-        recyclerView = (RecyclerView) findViewById(R.id.rv_trailers_list);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(manager);
-
-        divider = new DividerItemDecoration(
-                recyclerView.getContext(),
-                manager.getOrientation()
-        );
-        recyclerView.addItemDecoration(divider);
+        trailerRecyclerView = setupRecyclerWithLinearManager(R.id.rv_trailers_list);
+        reviewRecyclerView = setupRecyclerWithLinearManager(R.id.rv_reviews_list);
 
         int movieId = getIntent().getIntExtra(ID_EXTRA, -1);
 
@@ -79,7 +66,22 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         } catch (JSONException e) {
             (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
             (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
+            (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
         }
+    }
+
+    private RecyclerView setupRecyclerWithLinearManager(int id) {
+        RecyclerView recyclerView = (RecyclerView) findViewById(id);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+
+        divider = new DividerItemDecoration(
+                recyclerView.getContext(),
+                manager.getOrientation()
+        );
+        recyclerView.addItemDecoration(divider);
+
+        return recyclerView;
     }
 
     private void initializeCurrentMovie(Bundle state, int movieId) throws JSONException {
@@ -97,9 +99,17 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
             } else {
                 (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
             }
+
+            if (state.containsKey(REVIEWS_TAG)) {
+                currentReviews = new JSONArray(state.getString(REVIEWS_TAG));
+                updateReviews();
+            } else {
+                (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
+            }
         } else {
             (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
             (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
+            (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
         }
     }
 
@@ -109,32 +119,10 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
 
         outState.putString(MOVIE_TAG, currentMovie.toString());
         outState.putString(TRAILERS_TAG, currentTrailers.toString());
+        outState.putString(REVIEWS_TAG, currentReviews.toString());
     }
 
-    private class GetMovieDetailsTask extends AsyncTask<URL, Void, JSONObject> {
-
-        @Override
-        protected JSONObject doInBackground(URL... params) {
-            URL url = params[0];
-            JSONObject result;
-
-            Request request = new Request.Builder()
-                    .url(url)
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                result = new JSONObject(response.body().string());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return result;
-        }
-
+    private class GetMovieDetailsTask extends GetMovieDataTask {
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
@@ -146,30 +134,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         }
     }
 
-    private class GetMovieTrailersTask extends AsyncTask<URL, Void, JSONObject> {
-
-        @Override
-        protected JSONObject doInBackground(URL... params) {
-            URL url = params[0];
-            JSONObject result;
-
-            Request request = new Request.Builder()
-                    .url(url)
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                result = new JSONObject(response.body().string());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return result;
-        }
-
+    private class GetMovieTrailersTask extends GetMovieDataTask {
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
@@ -181,6 +146,20 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
             }
         }
     }
+
+    private class GetMovieReviewsTask extends GetMovieDataTask {
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            try {
+                JSONArray reviewList = result.getJSONArray("results");
+                currentReviews = reviewList;
+                updateReviews();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void updateMovieDetails() throws JSONException {
         ivPoster = (ImageView) findViewById(R.id.iv_detail_poster);
@@ -205,7 +184,14 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private void updateTrailers() {
         if (trailersAdapter == null) {
             trailersAdapter = new MovieTrailersAdapter(currentTrailers, this);
-            recyclerView.swapAdapter(trailersAdapter, true);
+            trailerRecyclerView.swapAdapter(trailersAdapter, true);
+        }
+    }
+
+    private void updateReviews() {
+        if (reviewsAdapter == null) {
+            reviewsAdapter = new MovieReviewsAdapter(currentReviews);
+            reviewRecyclerView.swapAdapter(reviewsAdapter, true);
         }
     }
 

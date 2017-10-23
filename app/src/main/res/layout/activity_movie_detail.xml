@@ -92,9 +92,23 @@
             android:layout_height="wrap_content" />
 
         <android.support.v7.widget.RecyclerView
+            android:padding="20sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/rv_trailers_list" />
+
+        <TextView
+            android:text="@string/reviews_label"
+            android:padding="20sp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <android.support.v7.widget.RecyclerView
+            android:padding="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rv_reviews_list" />
 
     </LinearLayout>
 </ScrollView>
