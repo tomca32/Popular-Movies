@@ -146,7 +146,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         }
     }
 
-    private class GetMovieTrailersTask extends AsyncTask<URL, Void, JSONObject> implements MovieTrailersAdapter.TrailerClickListener {
+    private class GetMovieTrailersTask extends AsyncTask<URL, Void, JSONObject> {
 
         @Override
         protected JSONObject doInBackground(URL... params) {
@@ -179,11 +179,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
-
-        @Override
-        public void onTrailerClick(JSONObject trailerClicked) {
-
         }
     }
 
