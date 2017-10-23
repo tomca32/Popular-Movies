@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,16 +36,32 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     RecyclerView recyclerView;
     MovieGridAdapter adapter;
 
+    HashMap<String, JSONObject> resultCache;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_grid);
+        resultCache = new HashMap<>();
+
+        if (savedInstanceState != null) {
+            populateResultCache(savedInstanceState);
+        }
 
         recyclerView = (RecyclerView) findViewById(R.id.rv_movies_grid);
         GridLayoutManager manager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(manager);
 
         popularSortSelected();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        for (String url : resultCache.keySet()) {
+            outState.putString(url, resultCache.get(url).toString());
+        }
     }
 
     void updateMovieGrid(JSONObject movies) {
@@ -92,21 +109,33 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     }
 
     private void popularSortSelected() {
+        URL url = getPopularMoviesUrl(this);
+
+        if (showCachedGrid(url.toString())) {
+            return;
+        }
+
         if (isOffline(this)) {
             displayOfflineWarning(this);
             return;
         }
         GetMoviesTask task = new GetMoviesTask();
-        task.execute(getPopularMoviesUrl(this));
+        task.execute(url);
     }
 
     private void topSortSelected() {
+        URL url = getTopRatedMoviesUrl(this);
+
+        if (showCachedGrid(url.toString())) {
+            return;
+        }
+
         if (isOffline(this)) {
             displayOfflineWarning(this);
             return;
         }
         GetMoviesTask task = new GetMoviesTask();
-        task.execute(getTopRatedMoviesUrl(this));
+        task.execute(url);
     }
 
     @Override
@@ -120,10 +149,31 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
         startActivity(intent);
     }
 
-    private class GetMoviesTask extends AsyncTask<URL, Void, JSONObject> {
+    private boolean showCachedGrid(String url) {
+        if (resultCache.containsKey(url)) {
+            updateMovieGrid(resultCache.get(url));
+            return true;
+        }
+        return false;
+    }
+
+    private void populateResultCache(Bundle state) {
+        for (String key : state.keySet()) {
+            String value = state.getString(key);
+            if (value != null) {
+                try {
+                    resultCache.put(key, new JSONObject(value));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private class GetMoviesTask extends AsyncTask<URL, Void, JsonResultWrapper> {
 
         @Override
-        protected JSONObject doInBackground(URL... params) {
+        protected JsonResultWrapper doInBackground(URL... params) {
             URL url = params[0];
             JSONObject result;
 
@@ -141,12 +191,13 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
                 return null;
             }
 
-            return result;
+            return new JsonResultWrapper(url.toString(), result);
         }
 
         @Override
-        protected void onPostExecute(JSONObject result) {
-            updateMovieGrid(result);
+        protected void onPostExecute(JsonResultWrapper wrapper) {
+            resultCache.put(wrapper.url, wrapper.result);
+            updateMovieGrid(wrapper.result);
         }
     }
 }
