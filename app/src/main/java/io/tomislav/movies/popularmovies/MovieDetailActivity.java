@@ -139,8 +139,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
-                JSONArray trailerList = result.getJSONArray("results");
-                currentTrailers = trailerList;
+                currentTrailers = result.getJSONArray("results");
                 updateTrailers();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -152,8 +151,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
-                JSONArray reviewList = result.getJSONArray("results");
-                currentReviews = reviewList;
+                currentReviews = result.getJSONArray("results");
                 updateReviews();
             } catch (JSONException e) {
                 e.printStackTrace();
