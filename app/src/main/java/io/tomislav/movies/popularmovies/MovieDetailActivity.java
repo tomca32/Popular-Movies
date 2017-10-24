@@ -8,8 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -45,11 +47,24 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     RecyclerView trailerRecyclerView;
     RecyclerView reviewRecyclerView;
     DividerItemDecoration divider;
+    ToggleButton favoriteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+        favoriteButton = (ToggleButton) findViewById(R.id.favoriteButton);
+        favoriteButton.setOnClickListener(new ToggleButton.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (favoriteButton.isChecked()) {
+                    currentMovie.save();
+                } else {
+                    currentMovie.delete();
+                }
+            }
+        });
+
 
         trailerRecyclerView = setupRecyclerWithLinearManager(R.id.rv_trailers_list);
         reviewRecyclerView = setupRecyclerWithLinearManager(R.id.rv_reviews_list);
@@ -88,7 +103,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private void initializeCurrentMovie(Bundle state, int movieId) throws JSONException {
         if (state != null) {
             if (state.containsKey(MOVIE_TAG)) {
-                currentMovie = new Movie(state.getBundle(MOVIE_TAG));
+                currentMovie = new Movie(state.getBundle(MOVIE_TAG), this);
                 updateMovieDetails();
             } else {
                 (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
@@ -126,7 +141,11 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private class GetMovieDetailsTask extends GetMovieDataTask {
         @Override
         protected void onPostExecute(JSONObject result) {
-            currentMovie = new Movie(result);
+            try {
+                currentMovie = new Movie(result, MovieDetailActivity.this);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             updateMovieDetails();
         }
     }

@@ -12,6 +12,8 @@
     <string name="movie_poster">Movie Poster</string>
     <string name="runtime">%s min</string>
     <string name="rating">%.1f/10</string>
+    <string name="favorite">FAVORITE</string>
+    <string name="favorited">FAVORITED</string>
     <string name="trailers_label">Trailers:</string>
     <string name="reviews_label">Reviews:</string>
     <string name="youtube_url">http://www.youtube.com/watch?v=</string>

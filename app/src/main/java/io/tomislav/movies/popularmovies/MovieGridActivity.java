@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.idescout.sql.SqlScoutServer;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +49,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SqlScoutServer.create(this, getPackageName());
         setContentView(R.layout.activity_movie_grid);
         resultCache = new HashMap<>();
         currentlySelected = POPULAR;
