@@ -12,5 +12,6 @@ public class FavoritesContract {
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_VOTE = "vote";
         public static final String COLUMN_OVERVIEW = "overview";
+        public static final String COLUMN_TRAILERS = "trailers";
     }
 }

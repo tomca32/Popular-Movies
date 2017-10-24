@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +18,7 @@ import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEn
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_RELEASE_DATE;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_RUNTIME;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_TITLE;
+import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_TRAILERS;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_VOTE;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.TABLE_NAME;
 
@@ -31,7 +33,9 @@ class Movie {
     private String RUNTIME = "runtime";
     private String VOTE = "vote_average";
     private String OVERVIEW = "overview";
+    private String TRAILERS = "trailers";
     private String IS_FAVORITE = "is_favorite";
+
 
     private int movieId;
     String title;
@@ -40,18 +44,12 @@ class Movie {
     String runtime;
     Double vote;
     String overview;
+    JSONArray trailers;
     boolean isFavorite;
 
-    Movie(JSONObject movieJson, Context context) throws JSONException {
+    Movie(Context context) {
         dbHelper = new FavoritesDbHelper(context);
         db = dbHelper.getWritableDatabase();
-        movieId = movieJson.getInt(MOVIE_ID);
-        title = movieJson.getString(TITLE);
-        posterPath = movieJson.getString(POSTER);
-        date = movieJson.getString(DATE);
-        runtime = movieJson.getString(RUNTIME);
-        vote = movieJson.getDouble(VOTE);
-        overview = movieJson.getString(OVERVIEW);
         isFavorite = false;
     }
 
@@ -67,6 +65,13 @@ class Movie {
         vote = bundle.getDouble(VOTE);
         overview = bundle.getString(OVERVIEW);
         isFavorite = bundle.getBoolean(IS_FAVORITE);
+        if (bundle.containsKey(TRAILERS)) {
+            try {
+                trailers = new JSONArray(bundle.getString(TRAILERS));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private Movie(Cursor c, Context context) {
@@ -80,6 +85,11 @@ class Movie {
         runtime = c.getString(c.getColumnIndex(COLUMN_RUNTIME));
         vote = c.getDouble(c.getColumnIndex(COLUMN_VOTE));
         overview = c.getString(c.getColumnIndex(COLUMN_OVERVIEW));
+        try {
+            trailers = new JSONArray(c.getString(c.getColumnIndex(COLUMN_TRAILERS)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         isFavorite = true;
         c.close();
     }
@@ -95,11 +105,14 @@ class Movie {
         bundle.putDouble(VOTE, vote);
         bundle.putString(OVERVIEW, overview);
         bundle.putBoolean(IS_FAVORITE, isFavorite);
+        if (trailers != null) {
+            bundle.putString(TRAILERS, trailers.toString());
+        }
 
         return bundle;
     }
 
-    public static Movie find(int movieId, Context context) {
+    static Movie find(int movieId, Context context) {
         SQLiteDatabase db = new FavoritesDbHelper(context).getReadableDatabase();
         Cursor c = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_MOVIE_ID + " = " + movieId + ";", null);
         if (c.moveToFirst()) {
@@ -118,6 +131,7 @@ class Movie {
         cv.put(COLUMN_RUNTIME, runtime);
         cv.put(COLUMN_VOTE, vote);
         cv.put(COLUMN_OVERVIEW, overview);
+        cv.put(COLUMN_TRAILERS, trailers.toString());
 
         db.insert(TABLE_NAME, null, cv);
         isFavorite = true;
@@ -126,5 +140,15 @@ class Movie {
     void delete() {
         db.delete(TABLE_NAME, COLUMN_MOVIE_ID + "=" + movieId, null);
         isFavorite = false;
+    }
+
+    void parseJsonMovieDetails(JSONObject movieJson) throws JSONException {
+        movieId = movieJson.getInt(MOVIE_ID);
+        title = movieJson.getString(TITLE);
+        posterPath = movieJson.getString(POSTER);
+        date = movieJson.getString(DATE);
+        runtime = movieJson.getString(RUNTIME);
+        vote = movieJson.getDouble(VOTE);
+        overview = movieJson.getString(OVERVIEW);
     }
 }

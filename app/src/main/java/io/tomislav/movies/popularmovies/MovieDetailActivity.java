@@ -29,10 +29,8 @@ import static io.tomislav.movies.popularmovies.UrlService.getMovieTrailersUrl;
 public class MovieDetailActivity extends AppCompatActivity implements MovieTrailersAdapter.TrailerClickListener {
     public static final String ID_EXTRA = "ID_EXTRA";
     private static final String MOVIE_TAG = "MOVIE_TAG";
-    private static final String TRAILERS_TAG = "TRAILERS_TAG";
     private static final String REVIEWS_TAG = "REVIEWS_TAG";
     private Movie currentMovie;
-    private JSONArray currentTrailers;
     private JSONArray currentReviews;
 
     TextView tvMovieTitle;
@@ -53,6 +51,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+        currentMovie = new Movie(this);
         favoriteButton = (ToggleButton) findViewById(R.id.favoriteButton);
         favoriteButton.setOnClickListener(new ToggleButton.OnClickListener() {
             @Override
@@ -111,13 +110,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
 
         } else {
             (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
-        }
-
-
-        if (state != null && state.containsKey(TRAILERS_TAG)) {
-            currentTrailers = new JSONArray(state.getString(TRAILERS_TAG));
-            updateTrailers();
-        } else {
             (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
         }
 
@@ -134,7 +126,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         super.onSaveInstanceState(outState);
 
         outState.putBundle(MOVIE_TAG, currentMovie.toBundle());
-        outState.putString(TRAILERS_TAG, currentTrailers.toString());
         outState.putString(REVIEWS_TAG, currentReviews.toString());
     }
 
@@ -142,7 +133,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
-                currentMovie = new Movie(result, MovieDetailActivity.this);
+                currentMovie.parseJsonMovieDetails(result);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -154,8 +145,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
-                currentTrailers = result.getJSONArray("results");
-                updateTrailers();
+                currentMovie.trailers = result.getJSONArray("results");
+                updateMovieDetails();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -195,11 +186,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         tvPlot.setText(currentMovie.overview);
 
         favoriteButton.setChecked(currentMovie.isFavorite);
-    }
 
-    private void updateTrailers() {
-        if (trailersAdapter == null) {
-            trailersAdapter = new MovieTrailersAdapter(currentTrailers, this);
+        if (trailersAdapter == null && currentMovie.trailers != null) {
+            trailersAdapter = new MovieTrailersAdapter(currentMovie.trailers, this);
             trailerRecyclerView.swapAdapter(trailersAdapter, true);
         }
     }

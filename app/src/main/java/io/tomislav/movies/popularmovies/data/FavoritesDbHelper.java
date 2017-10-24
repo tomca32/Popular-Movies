@@ -10,13 +10,14 @@ import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEn
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_RELEASE_DATE;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_RUNTIME;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_TITLE;
+import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_TRAILERS;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_VOTE;
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.TABLE_NAME;
 
 public class FavoritesDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "favorites.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public FavoritesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,7 +33,8 @@ public class FavoritesDbHelper extends SQLiteOpenHelper {
                 COLUMN_RELEASE_DATE + " TEXT NOT NULL, " +
                 COLUMN_RUNTIME + " TEXT NOT NULL, " +
                 COLUMN_VOTE + " TEXT NOT NULL, " +
-                COLUMN_OVERVIEW + " TEXT NOT NULL " +
+                COLUMN_OVERVIEW + " TEXT NOT NULL, " +
+                COLUMN_TRAILERS + " TEXT " +
                 ");";
         db.execSQL(SQL_CREATE_FAVORITES_TABLE);
     }
