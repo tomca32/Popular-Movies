@@ -16,7 +16,7 @@ import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEn
 public class FavoritesDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "favorites.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public FavoritesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -26,7 +26,7 @@ public class FavoritesDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 FavoritesContract.FavoriteEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_MOVIE_ID + " TEXT NOT NULL, " +
+                COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 COLUMN_TITLE + " TEXT NOT NULL, " +
                 COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
                 COLUMN_RELEASE_DATE + " TEXT NOT NULL, " +

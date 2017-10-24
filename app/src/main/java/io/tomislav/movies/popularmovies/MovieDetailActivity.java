@@ -101,8 +101,14 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     }
 
     private void initializeCurrentMovie(Bundle state, int movieId) throws JSONException {
+        Movie favoritedMovie = Movie.find(movieId, this);
+        if (favoritedMovie != null) {
+            currentMovie = favoritedMovie;
+            updateMovieDetails();
+        }
+
         if (state != null) {
-            if (state.containsKey(MOVIE_TAG)) {
+            if (currentMovie == null && state.containsKey(MOVIE_TAG)) {
                 currentMovie = new Movie(state.getBundle(MOVIE_TAG), this);
                 updateMovieDetails();
             } else {
@@ -123,7 +129,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
                 (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
             }
         } else {
-            (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
+            if (currentMovie == null) {
+                new GetMovieDetailsTask().execute(getMovieDetailsUrl(this, movieId));
+            }
             (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
             (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
         }
@@ -193,6 +201,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
 
         tvPlot = (TextView) findViewById(R.id.tv_plot);
         tvPlot.setText(currentMovie.overview);
+
+        favoriteButton.setChecked(currentMovie.isFavorite);
     }
 
     private void updateTrailers() {

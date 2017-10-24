@@ -49,7 +49,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqlScoutServer.create(this, getPackageName());
+//        SqlScoutServer.create(this, getPackageName());
         setContentView(R.layout.activity_movie_grid);
         resultCache = new HashMap<>();
         currentlySelected = POPULAR;
