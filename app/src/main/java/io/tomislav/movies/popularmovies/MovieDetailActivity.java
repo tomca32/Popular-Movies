@@ -105,34 +105,26 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         if (favoritedMovie != null) {
             currentMovie = favoritedMovie;
             updateMovieDetails();
+        } else if (state != null && state.containsKey(MOVIE_TAG)) {
+            currentMovie = new Movie(state.getBundle(MOVIE_TAG), this);
+            updateMovieDetails();
+
+        } else {
+            (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
         }
 
-        if (state != null) {
-            if (currentMovie == null && state.containsKey(MOVIE_TAG)) {
-                currentMovie = new Movie(state.getBundle(MOVIE_TAG), this);
-                updateMovieDetails();
-            } else {
-                (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
-            }
 
-            if (state.containsKey(TRAILERS_TAG)) {
-                currentTrailers = new JSONArray(state.getString(TRAILERS_TAG));
-                updateTrailers();
-            } else {
-                (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
-            }
-
-            if (state.containsKey(REVIEWS_TAG)) {
-                currentReviews = new JSONArray(state.getString(REVIEWS_TAG));
-                updateReviews();
-            } else {
-                (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
-            }
+        if (state != null && state.containsKey(TRAILERS_TAG)) {
+            currentTrailers = new JSONArray(state.getString(TRAILERS_TAG));
+            updateTrailers();
         } else {
-            if (currentMovie == null) {
-                new GetMovieDetailsTask().execute(getMovieDetailsUrl(this, movieId));
-            }
             (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
+        }
+
+        if (state != null && state.containsKey(REVIEWS_TAG)) {
+            currentReviews = new JSONArray(state.getString(REVIEWS_TAG));
+            updateReviews();
+        } else {
             (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
         }
     }
