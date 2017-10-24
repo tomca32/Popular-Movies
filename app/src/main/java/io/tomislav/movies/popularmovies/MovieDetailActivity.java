@@ -29,7 +29,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private static final String MOVIE_TAG = "MOVIE_TAG";
     private static final String TRAILERS_TAG = "TRAILERS_TAG";
     private static final String REVIEWS_TAG = "REVIEWS_TAG";
-    private JSONObject currentMovie;
+    private Movie currentMovie;
     private JSONArray currentTrailers;
     private JSONArray currentReviews;
 
@@ -88,7 +88,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private void initializeCurrentMovie(Bundle state, int movieId) throws JSONException {
         if (state != null) {
             if (state.containsKey(MOVIE_TAG)) {
-                currentMovie = new JSONObject(state.getString(MOVIE_TAG));
+                currentMovie = new Movie(state.getBundle(MOVIE_TAG));
                 updateMovieDetails();
             } else {
                 (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
@@ -118,7 +118,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString(MOVIE_TAG, currentMovie.toString());
+        outState.putBundle(MOVIE_TAG, currentMovie.toBundle());
         outState.putString(TRAILERS_TAG, currentTrailers.toString());
         outState.putString(REVIEWS_TAG, currentReviews.toString());
     }
@@ -126,12 +126,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private class GetMovieDetailsTask extends GetMovieDataTask {
         @Override
         protected void onPostExecute(JSONObject result) {
-            try {
-                currentMovie = result;
-                updateMovieDetails();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            currentMovie = new Movie(result);
+            updateMovieDetails();
         }
     }
 
@@ -160,24 +156,24 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     }
 
 
-    private void updateMovieDetails() throws JSONException {
+    private void updateMovieDetails() {
         ivPoster = (ImageView) findViewById(R.id.iv_detail_poster);
-        Picasso.with(this).load(UrlService.getPosterUrl(this, currentMovie.getString("poster_path")).toString()).into(ivPoster);
+        Picasso.with(this).load(UrlService.getPosterUrl(this, currentMovie.posterPath).toString()).into(ivPoster);
 
         tvMovieTitle = (TextView)findViewById(R.id.tv_movie_title);
-        tvMovieTitle.setText(currentMovie.getString("original_title"));
+        tvMovieTitle.setText(currentMovie.title);
 
         tvMovieDate = (TextView)findViewById(R.id.tv_movie_year);
-        tvMovieDate.setText(currentMovie.getString("release_date").split("-")[0]);
+        tvMovieDate.setText(currentMovie.date.split("-")[0]);
 
         tvRunningTime = (TextView) findViewById(R.id.tv_running_time);
-        tvRunningTime.setText(String.format(getString(R.string.runtime), currentMovie.getString("runtime")));
+        tvRunningTime.setText(String.format(getString(R.string.runtime), currentMovie.runtime));
 
         tvRating = (TextView) findViewById(R.id.tv_rating);
-        tvRating.setText(String.format(getString(R.string.rating), currentMovie.getDouble("vote_average")));
+        tvRating.setText(String.format(getString(R.string.rating), currentMovie.vote));
 
         tvPlot = (TextView) findViewById(R.id.tv_plot);
-        tvPlot.setText(currentMovie.getString("overview"));
+        tvPlot.setText(currentMovie.overview);
     }
 
     private void updateTrailers() {
