@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 
 import org.json.JSONArray;
@@ -164,8 +165,10 @@ class Movie {
     }
 
     void delete() {
-        db.delete(TABLE_NAME, COLUMN_MOVIE_ID + "=" + movieId, null);
         isFavorite = false;
+        db.delete(TABLE_NAME, COLUMN_MOVIE_ID + "=" + movieId, null);
+        Uri uri = FavoritesContract.FavoriteEntry.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
+        context.getContentResolver().delete(uri, null, null);
     }
 
     void parseJsonMovieDetails(JSONObject movieJson) throws JSONException {

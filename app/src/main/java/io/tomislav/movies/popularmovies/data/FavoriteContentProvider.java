@@ -85,7 +85,21 @@ public class FavoriteContentProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        int returnId;
+        switch(uriMatcher.match(uri)) {
+            case FAVORITE_WITH_ID: {
+                String id = uri.getPathSegments().get(1);
+                returnId = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            }
+            default: throw new UnsupportedOperationException("Unrecognized URI: " + uri);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnId;
     }
 
     @Override
