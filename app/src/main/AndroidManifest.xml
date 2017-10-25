@@ -25,6 +25,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MovieGridActivity" />
         </activity>
+        <provider
+            android:authorities="io.tomislav.movies.popularmovies"
+            android:name=".data.FavoriteContentProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

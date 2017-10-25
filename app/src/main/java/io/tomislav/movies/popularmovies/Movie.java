@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.tomislav.movies.popularmovies.data.FavoritesContract;
 import io.tomislav.movies.popularmovies.data.FavoritesDbHelper;
 
 import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEntry.COLUMN_MOVIE_ID;
@@ -26,6 +27,7 @@ import static io.tomislav.movies.popularmovies.data.FavoritesContract.FavoriteEn
 class Movie {
     private FavoritesDbHelper dbHelper;
     private SQLiteDatabase db;
+    private Context context;
 
     private String MOVIE_ID = "id";
     private String TITLE = "original_title";
@@ -51,12 +53,14 @@ class Movie {
     boolean isFavorite;
 
     Movie(Context context) {
+        this.context = context;
         dbHelper = new FavoritesDbHelper(context);
         db = dbHelper.getWritableDatabase();
         isFavorite = false;
     }
 
     Movie(Bundle bundle, Context context) {
+        this.context = context;
         dbHelper = new FavoritesDbHelper(context);
         db = dbHelper.getWritableDatabase();
 
@@ -85,6 +89,7 @@ class Movie {
     }
 
     private Movie(Cursor c, Context context) {
+        this.context = context;
         dbHelper = new FavoritesDbHelper(context);
         db = dbHelper.getWritableDatabase();
 
@@ -141,7 +146,9 @@ class Movie {
     }
 
     void save() {
+
         ContentValues cv = new ContentValues();
+
         cv.put(COLUMN_MOVIE_ID, movieId);
         cv.put(COLUMN_TITLE, title);
         cv.put(COLUMN_POSTER_PATH, posterPath);
@@ -152,7 +159,7 @@ class Movie {
         cv.put(COLUMN_TRAILERS, trailers.toString());
         cv.put(COLUMN_REVIEWS, reviews.toString());
 
-        db.insert(TABLE_NAME, null, cv);
+        context.getContentResolver().insert(FavoritesContract.FavoriteEntry.CONTENT_URI, cv);
         isFavorite = true;
     }
 
