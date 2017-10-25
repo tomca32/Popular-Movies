@@ -8,6 +8,7 @@
     <string name="base_image_url">http://image.tmdb.org/t/p/</string>
     <string name="popular_movies">Popular Movies</string>
     <string name="top_movies">Top Rated Movies</string>
+    <string name="favorite_movies">Favorite Movies</string>
     <string name="offline_warning">Device is offline. Unable to retrieve movie data.</string>
     <string name="movie_poster">Movie Poster</string>
     <string name="runtime">%s min</string>

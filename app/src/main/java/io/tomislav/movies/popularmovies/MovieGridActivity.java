@@ -1,11 +1,13 @@
 package io.tomislav.movies.popularmovies;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import io.tomislav.movies.popularmovies.data.FavoritesContract;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -44,6 +47,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
     final String CURRENTLY_SELECTED_KEY = "CURRENTLY_SELECTED_KEY";
     final String POPULAR = "POPULAR";
     final String TOP = "TOP";
+    final String FAVORITE = "FAVORITE";
 
     String currentlySelected;
     @Override
@@ -62,10 +66,16 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
         GridLayoutManager manager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(manager);
 
-        if (currentlySelected.equals(POPULAR)) {
-            popularSortSelected();
-        } else if (currentlySelected.equals(TOP)) {
-            topSortSelected();
+        switch (currentlySelected) {
+            case POPULAR:
+                popularSortSelected();
+                break;
+            case TOP:
+                topSortSelected();
+                break;
+            case FAVORITE:
+                favoriteSortSelected();
+                break;
         }
     }
 
@@ -108,14 +118,17 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
         super.onOptionsItemSelected(item);
 
         switch (item.getItemId()) {
-            case R.id.popular_sort_item: {
+            case R.id.popular_sort_item:
                 popularSortSelected();
                 break;
-            }
 
-            case R.id.top_sort_item: {
+            case R.id.top_sort_item:
                 topSortSelected();
-            }
+                break;
+
+            case R.id.favorites_sort_item:
+                favoriteSortSelected();
+                break;
         }
         return true;
     }
@@ -152,6 +165,14 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
         }
         GetMoviesTask task = new GetMoviesTask();
         task.execute(url);
+    }
+
+    private void favoriteSortSelected() {
+        currentlySelected = FAVORITE;
+        this.setTitle(R.string.favorite_movies);
+
+        GetFavoritesTask task = new GetFavoritesTask();
+        task.execute();
     }
 
     @Override
@@ -212,6 +233,47 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridAda
             }
 
             return new JsonResultWrapper(url.toString(), result);
+        }
+
+        @Override
+        protected void onPostExecute(JsonResultWrapper wrapper) {
+            resultCache.put(URL_PREFIX + wrapper.url, wrapper.result);
+            updateMovieGrid(wrapper.result);
+        }
+    }
+
+    private class GetFavoritesTask extends AsyncTask<Void, Void, JsonResultWrapper> {
+
+        @Override
+        protected JsonResultWrapper doInBackground(Void... params) {
+            Cursor c;
+            try {
+                c = getContentResolver().query(FavoritesContract.FavoriteEntry.CONTENT_URI, null, null, null, null);
+            } catch (Exception e) {
+                throw e;
+            }
+
+            String jsonArray = "[";
+            while (c.moveToNext()) {
+                if (jsonArray.length() != 1) {
+                    jsonArray += ", ";
+                }
+                String row = "{\"id\": " + c.getInt(c.getColumnIndex(FavoritesContract.FavoriteEntry.COLUMN_MOVIE_ID)) +
+                        ", \"poster_path\": \"" + c.getString(c.getColumnIndex(FavoritesContract.FavoriteEntry.COLUMN_POSTER_PATH)) + "\"" +
+                        "}";
+                jsonArray += row;
+            }
+
+            jsonArray += "]";
+
+            JSONObject result = new JSONObject();
+            try {
+                result.put("results", new JSONArray(jsonArray));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return new JsonResultWrapper("favorite", result);
         }
 
         @Override
