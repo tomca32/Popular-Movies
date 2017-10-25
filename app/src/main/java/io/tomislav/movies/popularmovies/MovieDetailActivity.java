@@ -85,7 +85,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
 
     private RecyclerView setupRecyclerWithLinearManager(int id) {
         RecyclerView recyclerView = (RecyclerView) findViewById(id);
-        recyclerView.setNestedScrollingEnabled(false);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
 
