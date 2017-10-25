@@ -31,7 +31,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     private static final String MOVIE_TAG = "MOVIE_TAG";
     private static final String REVIEWS_TAG = "REVIEWS_TAG";
     private Movie currentMovie;
-    private JSONArray currentReviews;
 
     TextView tvMovieTitle;
     TextView tvMovieDate;
@@ -111,12 +110,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         } else {
             (new GetMovieDetailsTask()).execute(getMovieDetailsUrl(this, movieId));
             (new GetMovieTrailersTask()).execute(getMovieTrailersUrl(this, movieId));
-        }
-
-        if (state != null && state.containsKey(REVIEWS_TAG)) {
-            currentReviews = new JSONArray(state.getString(REVIEWS_TAG));
-            updateReviews();
-        } else {
             (new GetMovieReviewsTask()).execute(getMovieReviewsUrl(this, movieId));
         }
     }
@@ -124,9 +117,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         outState.putBundle(MOVIE_TAG, currentMovie.toBundle());
-        outState.putString(REVIEWS_TAG, currentReviews.toString());
     }
 
     private class GetMovieDetailsTask extends GetMovieDataTask {
@@ -157,8 +148,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
-                currentReviews = result.getJSONArray("results");
-                updateReviews();
+                currentMovie.reviews = result.getJSONArray("results");
+                updateMovieDetails();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -191,11 +182,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieTrail
             trailersAdapter = new MovieTrailersAdapter(currentMovie.trailers, this);
             trailerRecyclerView.swapAdapter(trailersAdapter, true);
         }
-    }
 
-    private void updateReviews() {
-        if (reviewsAdapter == null) {
-            reviewsAdapter = new MovieReviewsAdapter(currentReviews);
+        if (reviewsAdapter == null && currentMovie.reviews != null) {
+            reviewsAdapter = new MovieReviewsAdapter(currentMovie.reviews);
             reviewRecyclerView.swapAdapter(reviewsAdapter, true);
         }
     }
